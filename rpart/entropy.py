@@ -60,6 +60,7 @@ def information_gain(y, mask, func=entropy):
     return information_gain
 
 # Generate all possible combinations of categories for a categorical variable (a)
+# Not sure we need this, need to replace the code in max_information_gain_split if dropped
 def cat_options(a):
     a = a.unique()
     options = []
@@ -89,8 +90,7 @@ def max_information_gain_split(x, y, func=entropy):
         split_value.append(val)
     # Check if there are more than 1 results if not, return False
     if len(ig) == 0:
-        return(None,None,None, False)
-
+        return( None, None, None, False)
     else:
         # Get results with highest information gain (IG)
         best_ig = max(ig)
@@ -117,49 +117,20 @@ def best_split(df, y, func=entropy):
     numeric_variable = numeric_variable[best_ig_index]
     return(best_ig, best_split, numeric_variable)
 
-# Make a binary split of the data based on the variable, value, and type (numeric or categorical)
-def make_split(variable, value, data, is_numeric):
-    if is_numeric:
-        data_1 = data[data[variable] < value]
-        data_2 = data[(data[variable] < value) == False]
-    else:
-        data_1 = data[data[variable].isin(value)]
-        data_2 = data[(data[variable].isin(value)) == False]
-    return(data_1, data_2)
-
-# Make a prediction based on the majority class (for categorical target) or mean (for numeric target)
-def make_prediction(data, target_factor):
-    # Make predictions
-    if target_factor:
-        pred = data.value_counts().idxmax()
-    else:
-        pred = data.mean()
-        # Uncomment these lines to try different types of means
-        # pred = data.median()
-        # pred = data.geomean()
-    return pred
+# # Make a binary split of the data based on the variable, value, and type (numeric or categorical)
+# def make_split(variable, value, data, is_numeric):
+#     if is_numeric:
+#         data_1 = data[data[variable] < value]
+#         data_2 = data[(data[variable] < value) == False]
+#     else:
+#         data_1 = data[data[variable].isin(value)]
+#         data_2 = data[(data[variable].isin(value)) == False]
+#     return(data_1, data_2)
 
 # Recursively build a decision tree based on the input data, target variable, and optional parameters
 def make_tree(data, target, func=entropy, max_depth=None, min_samples_split=2, depth=0, target_factor=True):
-    # Check stopping criteria
-    if max_depth is not None and depth >= max_depth:
-        return make_prediction(data[target], target_factor)
-    if data.shape[0] < min_samples_split:
-        return make_prediction(data[target], target_factor)
-    if data[target].nunique() == 1:
-        return make_prediction(data[target], target_factor)
-    # Find the best split
-    best_ig, best_split, numeric_variable = best_split(data.drop(target, axis=1), data[target], func)
-    # Check if there is a valid split
-    if best_ig is None:
-        return make_prediction(data[target], target_factor)
-    # Make the split
-    data_1, data_2 = make_split(best_split[0], best_split[1], data, numeric_variable)
-    # Recursively build the tree
-    tree = {}
-    tree[f"{best_split[0]} <= {best_split[1]}"] = make_tree(data_1, target, func, max_depth, min_samples_split, depth + 1, target_factor)
-    tree[f"{best_split[0]} > {best_split[1]}"] = make_tree(data_2, target, func, max_depth, min_samples_split, depth + 1, target_factor)
-    return tree
+    # placeholder for the decision tree
+    return 
 
 # Make predictions for a test dataset using the decision tree
 def predict(tree, test_data):
