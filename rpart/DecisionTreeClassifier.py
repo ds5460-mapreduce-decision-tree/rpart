@@ -6,10 +6,15 @@ class DecisionTreeClassifier:
     def __init__(
         self,
         criterion="entropy",
-        max_depth: int = None,
+        max_depth: int = 10,
         min_samples_split: int = 2,
         n_workers: int = 5,
     ) -> None:
+        for i in range(10):
+            for subset in data:
+                income = 20
+                age = 10
+
         self.criterion = criterion
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
@@ -24,13 +29,15 @@ class DecisionTreeClassifier:
         interface for model fitting
         """
         # partition the dataset
-        self.data = data
         self._split_candidates = self._find_split_candidates(data)
         self._data_partitioned = self._partition_dataset(data)
 
         # parallel loop here
-        with mp.Pool(self.n_workers) as pool:
-            pool.map(self._fit_worker, self._data_partitioned)
+        for i in range(self.max_depth):
+            output = []
+            with mp.Pool(self.n_workers) as pool:
+                metrics = pool.map(self._fit_worker, self._data_partitioned)
+                output.append(metrics)
 
     def predict(self, data=None):
         """
@@ -46,7 +53,12 @@ class DecisionTreeClassifier:
             split: self._get_metric(partition, split) for split in self._split_candidates
         }
 
-        return metrics
+        self._split_candidates = {
+            "income": [20, 30],
+            "age": [10, 20],
+        }
+
+        return {}
 
     def _get_metric(self, partition, split):
         # get the metric for a split in a partition
